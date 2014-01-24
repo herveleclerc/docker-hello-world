@@ -15,4 +15,4 @@ ADD https://raw.github.com/tutumcloud/docker-hello-world/master/supervisord-apac
 RUN mkdir -p /app && rm -fr /var/www && ln -s /app /var/www
 
 EXPOSE 80
-CMD ["/run.sh"]
+ENTRYPOINT ["/run.sh"]
