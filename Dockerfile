@@ -1,18 +1,31 @@
-FROM ubuntu:quantal
-MAINTAINER Fernando Mayo <fernando@tutum.co>
+FROM ubuntu:trusty
+MAINTAINER Brian Christner
 
-# Install packages
-RUN apt-get update && apt-get -y upgrade && DEBIAN_FRONTEND=noninteractive apt-get -y install supervisor git apache2 libapache2-mod-php5
-RUN git clone https://github.com/fermayo/hello-world-php.git /app
+# Install base packages
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get -yq install \
+        curl \
+        apache2 \
+        libapache2-mod-php5 \
+        php5-mysql \
+        php5-gd \
+        php5-curl \
+        php-pear \
+        php-apc && \
+    rm -rf /var/lib/apt/lists/* && \
+    curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf && \
+    sed -i "s/variables_order.*/variables_order = \"EGPCS\"/g" /etc/php5/apache2/php.ini
 
 # Add image configuration and scripts
-ADD https://raw.github.com/tutumcloud/docker-hello-world/master/start.sh /start.sh
-ADD https://raw.github.com/tutumcloud/docker-hello-world/master/run.sh /run.sh
-RUN chmod 755 /start.sh && chmod 755 /run.sh
-ADD https://raw.github.com/tutumcloud/docker-hello-world/master/supervisord-apache2.conf /etc/supervisor/conf.d/supervisord-apache2.conf
+ADD run.sh /run.sh
+RUN chmod 755 /*.sh
 
-# Configure /app folder
-RUN mkdir -p /app && rm -fr /var/www && ln -s /app /var/www
+# Configure /app folder with sample app
+RUN mkdir -p /app && rm -fr /var/www/html && ln -s /app /var/www/html
+ADD /app/ /app
 
 EXPOSE 80
-ENTRYPOINT ["/run.sh"]
+WORKDIR /app
+CMD ["/run.sh"]
+
