@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-poss
+  labels:
+    app: hello-world-poss
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-poss
+  template:
+    metadata:
+      labels:
+        app: hello-world-poss
+    spec:
+      containers:
+        - name: hello-world-poss
+          image: herveleclerc/docker-hello-world
+          ports:
+            - containerPort: 80
